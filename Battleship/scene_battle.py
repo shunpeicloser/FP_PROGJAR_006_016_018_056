@@ -23,7 +23,7 @@ class BattleScene:
     def loadresource(self):
         try:
             self.originobject['board'] = pygame.image.load("board.png")
-            self.originobject['explosion'] = pygame.image.load("explosion.png")
+            # self.originobject['explosion'] = pygame.image.load("explosion.png")
             self.originobject['cross'] = pygame.image.load("cross.png")
             self.originobject['battleship'].update(
                 {'carrier': battleship.Battleship('carrier', "carrier.png")})
