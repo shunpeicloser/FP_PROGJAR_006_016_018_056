@@ -1,0 +1,16 @@
+#   Inisiasi Game
+    Player meletakkan battleship ke board miliknya
+    Data:
+        > koordinat battleship
+        > sudut peletakan battleship
+
+#   Battle
+    Player secara bergantian menyerang posisi tertentu
+    Data:
+        > koordinat serangan
+    
+    Player memiliki opsi aksi yang akan dilakukan
+    Data:
+        > State aksi Player
+    
+    
