@@ -1,16 +1,15 @@
 #   Inisiasi Game
     Player meletakkan battleship ke board miliknya
     Data:
-        > koordinat battleship
-        > sudut peletakan battleship
+        > koordinat battleship  => board coordinate
+        > sudut peletakan battleship => int in [0, 90, 180, 270]
 
 #   Battle
     Player secara bergantian menyerang posisi tertentu
     Data:
-        > koordinat serangan
+        > koordinat serangan => board coordinate
     
     Player memiliki opsi aksi yang akan dilakukan
     Data:
         > State aksi Player
-    
     

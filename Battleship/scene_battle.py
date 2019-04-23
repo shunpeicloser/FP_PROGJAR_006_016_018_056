@@ -16,6 +16,7 @@ class BattleScene:
         self.ctl = ctl
         self.p1, self.p2 = None, None
         self.originobject = self.objectclassify()
+        self.occupied = []
         self.drawnbattleship = []
 
     def objectclassify(self):
@@ -52,6 +53,26 @@ class BattleScene:
             return True
         return False
 
+    def illegalplacement(self, coor, angle, size):
+        if coor == None:
+            return True
+
+        deltax, deltay = 0, 0
+        if angle == battleship.Battleship.DEG0 or angle == battleship.Battleship.DEG180:
+            deltax, deltay = 0, -1
+        elif angle == battleship.Battleship.DEG90 or angle == battleship.Battleship.DEG270:
+            deltax, deltay = -1, 0
+        
+        defendant = []
+
+        for i in range(0, size):
+            defendant.append((chr(ord(coor[0]) + i * deltax), coor[1] + i * deltay))
+        for d in defendant:
+            if d in self.occupied:
+                return True
+        
+        return False
+
     def drawbattleshipshadow(self, boardpos, pixelpos):
         if pixelpos != None and not self.battleshipoutofboard(boardpos):
             tmp = self.originobject['battleship'][self.ctl.selectedbattleship]
@@ -62,6 +83,9 @@ class BattleScene:
                 y -= (tmp.size - 1) * self.board.SQUARE_WIDTH
 
             self.screen.blit(self.originobject['battleship'][self.ctl.selectedbattleship].image , (x, y))
+
+    def occupytile(self, coor, angle, size):
+        pass
 
     def drawboarditems(self):
         for battleship_img, pos in self.drawnbattleship:
@@ -104,16 +128,16 @@ class BattleScene:
                     tm = self.ctl.getboardcoordinate(self.board, mousepos)
                     tmp = self.ctl.getpixelcoordinate(self.board, tm)
                     bs = self.originobject['battleship'][self.ctl.selectedbattleship]
-                    # need illegal position checking
-                    originpos = [0, 0]
-                    if bs.angle in [bs.DEG0, bs.DEG180]:
-                        originpos[0] = tmp[0] - self.board.SQUARE_WIDTH
-                        originpos[1] = tmp[1] - self.board.SQUARE_WIDTH * bs.size
-                    if bs.angle in [bs.DEG90, bs.DEG270]:
-                        originpos[0] = tmp[0] - self.board.SQUARE_WIDTH * bs.size
-                        originpos[1] = tmp[1] - self.board.SQUARE_WIDTH
-                    
-                    self.drawnbattleship.append((bs.image.copy(), tuple(originpos)))
+                    if not self.illegalplacement(tm, bs.angle, bs.size):
+                        originpos = [0, 0]
+                        if bs.angle in [bs.DEG0, bs.DEG180]:
+                            originpos[0] = tmp[0] - self.board.SQUARE_WIDTH
+                            originpos[1] = tmp[1] - self.board.SQUARE_WIDTH * bs.size
+                        if bs.angle in [bs.DEG90, bs.DEG270]:
+                            originpos[0] = tmp[0] - self.board.SQUARE_WIDTH * bs.size
+                            originpos[1] = tmp[1] - self.board.SQUARE_WIDTH
+                        
+                        self.drawnbattleship.append((bs.image.copy(), tuple(originpos)))
 
                 if event.type == pygame.KEYUP:
                     tmp = self.originobject['battleship'][self.ctl.selectedbattleship]
@@ -123,6 +147,7 @@ class BattleScene:
                     elif event.key == pygame.K_RIGHT:
                         tmp.transformbattleshipangle(tmp.DEG90)
                     self.originobject['battleship'][self.ctl.selectedbattleship] = tmp
+                    print(tmp.angle)
 
                 self.drawboarditems()
 
