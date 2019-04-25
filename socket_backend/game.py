@@ -1,5 +1,6 @@
 import socket
 import threading
+from tictactoe_server import TicTacToe
 
 class Player:
     def __init__(self, name: str, conn: socket):
@@ -35,7 +36,7 @@ class Game:
         while True:
             command = conn.recv(1024).decode().split()
             print(command)
-            if command[0] == "quit":
+            if command[0] == 'quit':
                 conn.send(b'well recvd')
                 self.player_list.pop(player_name, None)
                 conn.close()
@@ -48,6 +49,19 @@ class Game:
                 player = self.player_list[to]
                 player.conn.send(' '.join(command[2:]).encode())
                 conn.send(b'well recvd. msg sent')
+            elif command[0] == 'challenge':
+                if command[1] == 'invite':
+                    oppo = self.player_list[command[3]]
+                    oppo.conn.send('challenge invite {}'.format(player_name).encode())
+                    conn.send('invitation sent to {}'.format(command[3]).encode())
+                elif command[1] == 'accept':
+                    p1 = self.player_list[command[2]]
+                    p2 = self.player_list[command[3]]
+                    p1.conn.send('PLAY {} {}'.format(p1.name, p2.name).encode())
+                    p2.conn.send('PLAY {} {}'.format(p2.name, p1.name).encode())
+                    # tic = challenge_progjar.tictactoe_server.TicTacToe(p1, p2)
+                    # tic.start()
+                    # tic.join()
             else:
                 conn.send(b'well recvd')
 
