@@ -3,6 +3,8 @@ import pygame
 class Control:
     NO_ACTION = 0
     IS_PLACINGSHIP = 1
+    IS_WAITFOROPPONENT = 2
+    IS_ATTACKPHASE = 3
 
     def __init__(self):
         self.mousestatus = self.NO_ACTION
