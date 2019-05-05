@@ -19,6 +19,7 @@ class BattleScene:
         self.occupied = []
         self.drawnbattleship = []
 
+    # init container of image or object
     def objectclassify(self):
         ret = {}
         ret.update({'battleship': {}})
@@ -27,6 +28,7 @@ class BattleScene:
         ret.update({'cross': None})
         return ret
 
+    # load resource before the start of game
     def loadresource(self):
         try:
             self.originobject.update({'board':  utility.Utility.loadimage("board.png")})
@@ -39,16 +41,20 @@ class BattleScene:
             return -1
         return 0
 
+    # event when mouse hover
     def mousehover(self, boardpos):
         if self.ctl.mousestatus == self.ctl.NO_ACTION:
             pass
+        # case when player is placing battleship
         elif self.ctl.mousestatus == self.ctl.IS_PLACINGSHIP and not self.illegalplacement(
                                                 boardpos,
                                                 self.originobject['battleship'][self.ctl.selectedbattleship].angle,
                                                 self.originobject['battleship'][self.ctl.selectedbattleship].size
                                             ):
+            # draw hovering image of battleship
             self.drawbattleshipshadow(boardpos, self.ctl.getpixelcoordinate(self.board, boardpos))
 
+    # check if battleship is out of board
     def battleshipoutofboard(self, boardpos):
         tmp = self.originobject['battleship'][self.ctl.selectedbattleship]
         if tmp.angle in [tmp.DEG0, tmp.DEG180] and boardpos[1] - tmp.size < 0:
@@ -57,6 +63,7 @@ class BattleScene:
             return True
         return False
 
+    # check if the placement of battleship in the way of other battleship
     def illegalplacement(self, coor, angle, size):
         if coor == None:
             return True
@@ -77,6 +84,7 @@ class BattleScene:
         
         return False
 
+    # draw the image of battleship shadow
     def drawbattleshipshadow(self, boardpos, pixelpos):
         if pixelpos != None and not self.battleshipoutofboard(boardpos):
             tmp = self.originobject['battleship'][self.ctl.selectedbattleship]
@@ -88,6 +96,7 @@ class BattleScene:
 
             self.screen.blit(self.originobject['battleship'][self.ctl.selectedbattleship].image , (x, y))
 
+    # save occupied tiles
     def occupytile(self, coor, angle, size):
         tmp = [0, 0]
         deltax, deltay = 0, 0
@@ -102,10 +111,12 @@ class BattleScene:
         
         return
 
+    # draw items placed on board
     def drawboarditems(self):
         for battleship_img, pos in self.drawnbattleship:
             self.screen.blit(battleship_img, pos)
 
+    # initialization of game
     def initgame(self, p1name, p2name):
         self.p1 = player.Player(p1name)
         self.p2 = player.Player(p2name)
@@ -128,8 +139,9 @@ class BattleScene:
 
         return True
 
+    # start the battle scene
     def startbattle(self, p1name, p2name):
-        ncarrier, nbattleship, ncruiser, nsubmarine, ndestroyer = 1, 2, 1, 2, 4
+        # ncarrier, nbattleship, ncruiser, nsubmarine, ndestroyer = 1, 2, 1, 2, 4
         idxship = 0
         self.ctl.selectedbattleship = battleship.Battleship.SHIP_TYPE[0]
         running = self.initgame(p1name, p2name)
@@ -145,6 +157,7 @@ class BattleScene:
 
                 mousepos = pygame.mouse.get_pos()
 
+                # case player in 'placing battleship' phase
                 if self.ctl.mousestatus == self.ctl.IS_PLACINGSHIP:
                     if event.type == pygame.MOUSEBUTTONUP:
                         tm = self.ctl.getboardcoordinate(self.board, mousepos)
@@ -171,6 +184,7 @@ class BattleScene:
                             tmp.transformbattleshipangle(tmp.DEG90)
                         self.originobject['battleship'][self.ctl.selectedbattleship] = tmp
 
+                    # case to change the battleship in placing phase
                     if idxship == 1:
                         self.ctl.selectedbattleship = battleship.Battleship.SHIP_TYPE[1]
                     elif idxship == 3:
