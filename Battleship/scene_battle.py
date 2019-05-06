@@ -153,7 +153,7 @@ class BattleScene:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
-                    break
+                    return 0
 
                 mousepos = pygame.mouse.get_pos()
 
@@ -178,6 +178,10 @@ class BattleScene:
 
                     if event.type == pygame.KEYUP:
                         tmp = self.originobject['battleship'][self.ctl.selectedbattleship]
+                        if event.key == pygame.K_ESCAPE:
+                            pygame.quit()
+                            running = False
+                            break
                         if event.key == pygame.K_LEFT:
                             tmp.transformbattleshipangle(tmp.DEG270)
                         elif event.key == pygame.K_RIGHT:
@@ -200,12 +204,7 @@ class BattleScene:
 
                 pygame.display.update()
 
-if __name__ == "__main__":
-    board = board.Board(10)
-    ctl = control.Control()
-    bs = BattleScene(board, ctl)
-
-    # DEBUG
-    ctl.mousestatus = ctl.IS_PLACINGSHIP
-
-    bs.startbattle("tj", "receh")
+    def run(self):
+        self.ctl.mousestatus = self.ctl.IS_PLACINGSHIP
+        ret = self.startbattle("tj", "receh")
+        return ret
