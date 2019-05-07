@@ -69,8 +69,6 @@ class LoginScene:
                     running = False
                     return 0
 
-                
-
                 mousepos = pygame.mouse.get_pos()
 
                 if event.type == pygame.MOUSEBUTTONUP:
