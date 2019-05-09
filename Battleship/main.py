@@ -5,12 +5,14 @@ import scene_room
 import scene_battle
 import board
 import control
+import scene_highscore
 
 gamestatus = 1
 ls = scene_login.LoginScene()
 regs = scene_register.RegisterScene()
 rs = scene_room.RoomScene()
 bs = scene_battle.BattleScene(board.Board(10), control.Control())
+hs = scene_highscore.HighscoreScene()
 while gamestatus > 0:
     if gamestatus == 1:
         gamestatus = ls.run()
@@ -20,3 +22,5 @@ while gamestatus > 0:
         gamestatus = rs.run()
     if gamestatus == 4:
         gamestatus = bs.run()
+    if gamestatus == 5:
+        gamestatus = hs.run()
