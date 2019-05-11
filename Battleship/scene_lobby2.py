@@ -1,15 +1,11 @@
 import pygame
 import utility
 
-class HighscoreScene:
+class LobbyScene:
 	def __init__(self):
 		self.screen = None
 		self.SCREEN_RESOLUTION = (640, 640)
 		self.resource = {}
-		# self.username = []
-		# self.points
-		self.username = ['agu','sat','ceh','yar','tam','adi','tej','jee','pl9','pl10']
-		self.points = ['10','9','8','7','6','5','4','3','2','1']
 		self.quit_rect = pygame.rect.Rect(40, 550, 150, 60)
 		self.boxcolor = pygame.Color('black')
 
@@ -40,28 +36,8 @@ class HighscoreScene:
 		basey = 150 # Y starting coordinate for highscore list
 
 		# Header
-		hs_text = pygame.font.Font(None, 64).render('HIGHSCORES', True, pygame.Color('white'))
-		self.screen.blit(hs_text, (170,30))
-
-		# Thead
-		rank_text = pygame.font.Font(None, 48).render('RANK', True, pygame.Color('white'))
-		self.screen.blit(rank_text, (80,100))
-		username_text = pygame.font.Font(None, 48).render('USERNAME', True, pygame.Color('white'))
-		self.screen.blit(username_text, (260,100))
-		score_text = pygame.font.Font(None, 48).render('SCORE', True, pygame.Color('white'))
-		self.screen.blit(score_text, (500,100))
-
-
-		# Highscore List
-		for i in range(len(self.username)):
-			ranking.append(pygame.font.Font(None, 45).render(str(i+1), True, pygame.Color('white')))
-			user.append(pygame.font.Font(None, 45).render(self.username[i], True, pygame.Color('white')))
-			poin.append(pygame.font.Font(None, 45).render(self.points[i], True, pygame.Color('white')))
-
-			self.screen.blit(ranking[i], (80,basey))
-			self.screen.blit(user[i], (260,basey))
-			self.screen.blit(poin[i], (500,basey))
-			basey = basey + 30
+		hs_text = pygame.font.Font(None, 64).render('Waiting for Other Players', True, pygame.Color('white'))
+		self.screen.blit(hs_text, (50,240))
 
 	def startScene(self):
 		pygame.init()
