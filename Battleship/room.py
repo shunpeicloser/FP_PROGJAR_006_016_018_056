@@ -1,4 +1,4 @@
-class Lobby:
+class Room:
     def __init__(self):
         self.id = None
         self.name = None
@@ -6,13 +6,13 @@ class Lobby:
         self.my_rect = None
         self.my_fill = None
     
-    def createLobby(self,id):
+    def createRoom(self,id):
         self.id = id;
 
     def setName(self,name):
         self.name = name;
 
-    def joinLobby(self,username):
+    def joinRoom(self,username):
     	self.player.append(username)
 
     def createRect(self,my_rect):

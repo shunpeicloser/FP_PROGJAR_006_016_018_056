@@ -1,6 +1,6 @@
 import pygame
 import utility
-import lobby
+import room
 
 class LobbyScene:
 	def __init__(self):
@@ -9,8 +9,8 @@ class LobbyScene:
 		self.resource = {}
 		self.lobby = []
 		for i in range(10):
-			temp = lobby.Lobby()
-			temp.createLobby(i)
+			temp = room.Room()
+			temp.createRoom(i)
 			temp.setName("progjar"+str(i))
 			self.lobby.append(temp)
 		self.quit_rect = pygame.rect.Rect(40, 550, 150, 60)
