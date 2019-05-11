@@ -6,7 +6,7 @@ import scene_battle
 import board
 import control
 import scene_highscore
-import scene_lobby
+import scene_lobby2
 
 gamestatus = 6
 ls = scene_login.LoginScene()
@@ -14,7 +14,7 @@ regs = scene_register.RegisterScene()
 rs = scene_room.RoomScene()
 bs = scene_battle.BattleScene(board.Board(10), control.Control())
 hs = scene_highscore.HighscoreScene()
-lbs = scene_lobby.LobbyScene()
+lbs = scene_lobby2.LobbyScene()
 while gamestatus > 0:
     if gamestatus == 1:
         gamestatus = ls.run()
