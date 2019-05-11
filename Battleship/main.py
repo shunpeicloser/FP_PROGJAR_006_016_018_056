@@ -8,7 +8,7 @@ import control
 import scene_highscore
 import scene_lobby2
 
-gamestatus = 6
+gamestatus = 1
 ls = scene_login.LoginScene()
 regs = scene_register.RegisterScene()
 rs = scene_room.RoomScene()

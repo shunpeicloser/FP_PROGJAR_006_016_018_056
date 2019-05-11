@@ -11,6 +11,7 @@ class BattleScene:
 
     def __init__(self, board, ctl):
         self.board = board
+        self.is_attackboard = False
         self.SCREEN_RESOLUTION = (900, 640)
         self.screen = None
         self.ctl = ctl
@@ -113,8 +114,9 @@ class BattleScene:
 
     # draw items placed on board
     def drawboarditems(self):
-        for battleship_img, pos in self.drawnbattleship:
-            self.screen.blit(battleship_img, pos)
+        if not self.is_attackboard:
+            for battleship_img, pos in self.drawnbattleship:
+                self.screen.blit(battleship_img, pos)
 
     # initialization of game
     def initgame(self, p1name, p2name):
