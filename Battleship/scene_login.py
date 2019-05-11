@@ -8,8 +8,8 @@ class LoginScene:
         self.resource = {}
         self.username = ''
         self.password = ''
-        self.username_rect = pygame.rect.Rect(100, 100, 350, 80)
-        self.password_rect = pygame.rect.Rect(100, 200, 350, 80)
+        self.username_rect = pygame.rect.Rect(150, 250, 350, 80)
+        self.password_rect = pygame.rect.Rect(150, 350, 350, 80)
         self.login_rect = pygame.rect.Rect(40, 480, 260, 60)
         self.quit_rect = pygame.rect.Rect(40, 550, 260, 60)
         self.boxcolor = pygame.Color('black')
@@ -17,7 +17,7 @@ class LoginScene:
     def loadresource(self):
         try:
             self.resource.update({'background': (utility.Utility.loadimage('background.png'), (0, 0))})
-            self.resource.update({'logo': (utility.Utility.loadimage('logo.png'), (0, 0))})
+            self.resource.update({'logo': (utility.Utility.loadimage('logo.png'), (300, 120))})
             # self.resource.update({'loginbutton': (utility.Utility.loadimage('loginbutton.png'), (40, 480))})
             # self.resource.update({'quitbutton': (utility.Utility.loadimage('quitbutton.png'), (40, 550))})
         except:
@@ -27,14 +27,30 @@ class LoginScene:
     def drawscreen(self):
         for item in self.resource:
             self.screen.blit(self.resource[item][0], self.resource[item][1])
-        pygame.draw.rect(self.screen, self.boxcolor, self.username_rect, 2)
-        pygame.draw.rect(self.screen, self.boxcolor, self.password_rect, 2)
-        pygame.draw.rect(self.screen, self.boxcolor, self.login_rect, 2)
-        pygame.draw.rect(self.screen, self.boxcolor, self.quit_rect, 2)
-        username_surface = pygame.font.Font(None, 64).render(self.username, True, pygame.Color('yellow'))
-        password_surface = pygame.font.Font(None, 64).render(self.username, True, pygame.Color('yellow'))
-        login_surface = pygame.font.Font(None, 64).render('LOGIN', True, pygame.Color('yellow'))
-        quit_surface = pygame.font.Font(None, 64).render('QUIT', True, pygame.Color('yellow'))
+        pygame.draw.rect(self.screen, self.boxcolor, self.username_rect, 8)
+        pygame.draw.rect(self.screen, self.boxcolor, self.password_rect, 8)
+        pygame.draw.rect(self.screen, self.boxcolor, self.login_rect, 8)
+        pygame.draw.rect(self.screen, self.boxcolor, self.quit_rect, 8)
+        username_surface = pygame.font.Font(None, 64).render(self.username, True, pygame.Color('black'))
+        password_surface = pygame.font.Font(None, 64).render(self.password, True, pygame.Color('black'))
+        login_surface = pygame.font.Font(None, 64).render('LOGIN', True, pygame.Color('white'))
+        quit_surface = pygame.font.Font(None, 64).render('QUIT', True, pygame.Color('white'))
+        
+        username_fill = pygame.Surface((350, 80))
+        password_fill = pygame.Surface((350, 80))
+        login_fill = pygame.Surface((260, 60))
+        quit_fill = pygame.Surface((260, 60))
+
+        username_fill.fill((255, 255, 255))
+        password_fill.fill((255, 255, 255))
+        login_fill.fill((0, 0, 0))
+        quit_fill.fill((0, 0, 0))
+        
+        self.screen.blit(username_fill, (self.username_rect.x, self.username_rect.y))
+        self.screen.blit(password_fill, (self.password_rect.x, self.password_rect.y))
+        self.screen.blit(login_fill, (self.login_rect.x, self.login_rect.y))
+        self.screen.blit(quit_fill, (self.quit_rect.x, self.quit_rect.y))
+
         self.screen.blit(username_surface, (self.username_rect.x + 8, self.username_rect.y + 8))
         self.screen.blit(password_surface, (self.password_rect.x + 8, self.password_rect.y + 8))
         self.screen.blit(login_surface, (self.login_rect.x + 8, self.login_rect.y + 8))
@@ -45,6 +61,7 @@ class LoginScene:
         self.screen = pygame.display.set_mode(self.SCREEN_RESOLUTION)
         running = self.loadresource()
         mousepos = None
+        is_username, is_password = False, False
         while running:
             self.screen.fill((0, 0, 0))
             for event in pygame.event.get():
@@ -52,21 +69,36 @@ class LoginScene:
                     running = False
                     return 0
 
-                self.drawscreen()
-
                 mousepos = pygame.mouse.get_pos()
 
                 if event.type == pygame.MOUSEBUTTONUP:
                     if self.username_rect.collidepoint(mousepos):
-                        pass
+                        is_username = True
+                        is_password = False
                     elif self.password_rect.collidepoint(mousepos):
-                        pass
-                    elif self.login_rect.collidepoint(mousepos):
+                        is_username = False
+                        is_password = True
+                    else:
+                        is_username, is_password = False, False
+
+                    if self.login_rect.collidepoint(mousepos):
                         return 4
                     elif self.quit_rect.collidepoint(mousepos):
                         return 0
 
-
+                if is_username:
+                    if event.type == pygame.KEYUP:
+                        if event.key == pygame.K_BACKSPACE:
+                            self.username = self.username[:-1]
+                        else:
+                            self.username += chr(event.key)
+                elif is_password:
+                    if event.type == pygame.KEYUP:
+                        if event.key == pygame.K_BACKSPACE:
+                            self.password = self.password[:-1]
+                        else:
+                            self.password += chr(event.key)
+                self.drawscreen()
                 pygame.display.update()
 
     def run(self):
