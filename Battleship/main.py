@@ -8,7 +8,7 @@ import control
 import scene_highscore
 import scene_lobby2
 
-gamestatus = 6
+gamestatus = 1
 ls = scene_login.LoginScene()
 regs = scene_register.RegisterScene()
 rs = scene_room.RoomScene()
@@ -18,7 +18,7 @@ lbs = scene_lobby2.LobbyScene()
 while gamestatus > 0:
     if gamestatus == 1:
         gamestatus = ls.run()
-    if gamestatus == 2:
+    if gamestatus == 6:
         gamestatus = regs.run()
     if gamestatus == 3:
         gamestatus = rs.run()
@@ -26,5 +26,5 @@ while gamestatus > 0:
         gamestatus = bs.run()
     if gamestatus == 5:
         gamestatus = hs.run()
-    if gamestatus == 6:
+    if gamestatus == 2:
         gamestatus = lbs.run()

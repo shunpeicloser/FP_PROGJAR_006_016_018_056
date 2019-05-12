@@ -82,7 +82,7 @@ class LoginScene:
                         is_username, is_password = False, False
 
                     if self.login_rect.collidepoint(mousepos):
-                        return 4
+                        return 2
                     elif self.quit_rect.collidepoint(mousepos):
                         return 0
 

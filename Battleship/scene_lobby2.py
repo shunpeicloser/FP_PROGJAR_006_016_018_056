@@ -89,7 +89,7 @@ class LobbyScene:
 						if(self.lobby[i].is_ingame() != True):
 							if self.lobby[i].getRect().collidepoint(mousepos):
 								print(self.lobby[i].getname())
-								# return 0 #return nomor room bisa deh
+								return 4
 				self.drawScreen()
 				pygame.display.update()
 
