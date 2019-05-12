@@ -12,6 +12,7 @@ class LoginScene:
         self.password_rect = pygame.rect.Rect(150, 350, 350, 80)
         self.login_rect = pygame.rect.Rect(40, 480, 260, 60)
         self.quit_rect = pygame.rect.Rect(40, 550, 260, 60)
+        self.register_rect = pygame.rect.Rect(320, 550, 260, 60)
         self.boxcolor = pygame.Color('black')
     
     def loadresource(self):
@@ -27,34 +28,42 @@ class LoginScene:
     def drawscreen(self):
         for item in self.resource:
             self.screen.blit(self.resource[item][0], self.resource[item][1])
+
         pygame.draw.rect(self.screen, self.boxcolor, self.username_rect, 8)
         pygame.draw.rect(self.screen, self.boxcolor, self.password_rect, 8)
         pygame.draw.rect(self.screen, self.boxcolor, self.login_rect, 8)
         pygame.draw.rect(self.screen, self.boxcolor, self.quit_rect, 8)
+        pygame.draw.rect(self.screen, self.boxcolor, self.register_rect, 8)
+
         username_surface = pygame.font.Font(None, 64).render(self.username, True, pygame.Color('black'))
         password_surface = pygame.font.Font(None, 64).render(self.password, True, pygame.Color('black'))
         login_surface = pygame.font.Font(None, 64).render('LOGIN', True, pygame.Color('white'))
         quit_surface = pygame.font.Font(None, 64).render('QUIT', True, pygame.Color('white'))
+        register_surface = pygame.font.Font(None, 64).render('REGISTER', True, pygame.Color('white'))
         
         username_fill = pygame.Surface((350, 80))
         password_fill = pygame.Surface((350, 80))
         login_fill = pygame.Surface((260, 60))
         quit_fill = pygame.Surface((260, 60))
+        register_fill = pygame.Surface((260, 60))
 
         username_fill.fill((255, 255, 255))
         password_fill.fill((255, 255, 255))
         login_fill.fill((0, 0, 0))
         quit_fill.fill((0, 0, 0))
+        register_fill.fill((0, 0, 0))
         
         self.screen.blit(username_fill, (self.username_rect.x, self.username_rect.y))
         self.screen.blit(password_fill, (self.password_rect.x, self.password_rect.y))
         self.screen.blit(login_fill, (self.login_rect.x, self.login_rect.y))
         self.screen.blit(quit_fill, (self.quit_rect.x, self.quit_rect.y))
+        self.screen.blit(register_fill, (self.register_rect.x, self.register_rect.y))
 
         self.screen.blit(username_surface, (self.username_rect.x + 8, self.username_rect.y + 8))
         self.screen.blit(password_surface, (self.password_rect.x + 8, self.password_rect.y + 8))
         self.screen.blit(login_surface, (self.login_rect.x + 8, self.login_rect.y + 8))
         self.screen.blit(quit_surface, (self.quit_rect.x + 8, self.quit_rect.y + 8))
+        self.screen.blit(register_surface, (self.register_rect.x + 8, self.register_rect.y + 8))
 
     def startscene(self):
         pygame.init()
@@ -81,8 +90,10 @@ class LoginScene:
                     else:
                         is_username, is_password = False, False
 
-                    if self.login_rect.collidepoint(mousepos):
+                    if self.register_rect.collidepoint(mousepos):
                         return 2
+                    elif self.login_rect.collidepoint(mousepos):
+                        return 4
                     elif self.quit_rect.collidepoint(mousepos):
                         return 0
 
