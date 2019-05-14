@@ -8,6 +8,13 @@ import control
 import scene_highscore
 import scene_lobby2
 
+import socket
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock.connect(("127.0.0.1", 9000))
+welcome = sock.recv(1024).decode()
+if welcome:
+    print("Connected to server yay :D")
+
 gamestatus = 1
 ls = scene_login.LoginScene()
 regs = scene_register.RegisterScene()

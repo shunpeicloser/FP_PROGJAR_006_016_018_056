@@ -1,6 +1,7 @@
 class Player:
     def __init__(self, name):
         self.name = name
+        self.loggedin = False
         self.ingame = False
         self.my_rect = None
         self.my_fill = None
