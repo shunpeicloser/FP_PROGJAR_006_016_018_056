@@ -93,6 +93,7 @@ class LoginScene:
                     if self.register_rect.collidepoint(mousepos):
                         return 2
                     elif self.login_rect.collidepoint(mousepos):
+                        
                         return 4
                     elif self.quit_rect.collidepoint(mousepos):
                         return 0
