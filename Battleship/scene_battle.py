@@ -99,6 +99,11 @@ class BattleScene:
         
         return False
 
+    def illegalattack(self, boardcoor):
+        if boardcoor in self.attackboard:
+            return True
+        return False
+
     # draw the image of battleship shadow
     def drawbattleshipshadow(self, boardpos, pixelpos):
         if pixelpos != None and not self.battleshipoutofboard(boardpos):
@@ -229,8 +234,10 @@ class BattleScene:
                         self.is_attackboard = True
                     
                     if self.is_attackboard:
-                        if not self.illegalplacement(self.ctl.getboardcoordinate(self.board, mousepos), 0, 1):
+                        if not self.illegalattack(self.ctl.getboardcoordinate(self.board, mousepos)):
                             tmp = self.ctl.getboardcoordinate(self.board, mousepos)
+                            if tmp == None:
+                                continue
                             tmp = list(tmp)
                             tmp[0] = chr(ord(tmp[0])-1)
                             tmp[1] -= 1
