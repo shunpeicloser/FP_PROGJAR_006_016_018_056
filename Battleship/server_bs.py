@@ -6,12 +6,6 @@ import pickle
 import dbconn
 from player import Player
 
-# host = ('127.0.0.1', 9000)
-# server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-# server_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-# server_sock.bind(host)
-# server_sock.listen()
-
 class ClientThread(threading.Thread):
     def __init__(self, sock: socket, address: tuple, player_list: dict):
         threading.Thread.__init__(self)
@@ -44,7 +38,11 @@ class ClientThread(threading.Thread):
                 self.sock.send(b"BYE")
                 self.sock.close()
                 self.live = False
-                self.player_list.pop(self.player.name)
+
+                # if already logged in, delete from session
+                if self.player.name:
+                    self.player_list.pop(self.player.name)
+
                 self.conn.close()
 
 

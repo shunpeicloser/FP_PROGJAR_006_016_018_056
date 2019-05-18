@@ -35,3 +35,7 @@ while gamestatus > 0:
         gamestatus = hs.run()
     if gamestatus == 6:
         gamestatus = lbs.run()
+
+# quiting
+sock.send(b"QUIT")
+sock.close()
