@@ -2,7 +2,7 @@ import pygame
 import utility
 
 class RegisterScene:
-    def __init__(self):
+    def __init__(self, sock):
         self.screen = None
         self.SCREEN_RESOLUTION = (640, 640)
         self.resource = {}
@@ -13,6 +13,9 @@ class RegisterScene:
         self.confirm_rect = pygame.rect.Rect(300, 300, 260, 60)
         self.back_rect = pygame.rect.Rect(20, 300, 260, 60)
         self.boxcolor = pygame.Color('black')
+
+        # socket to server
+        self.sock = sock
     
     def loadresource(self):
         try:
@@ -80,9 +83,27 @@ class RegisterScene:
                     else:
                         is_username, is_password = False, False
 
-                    if self.confirm_rect.collidepoint(mousepos):
+                    if self.confirm_rect.collidepoint(mousepos): # register button
+                        self.sock.send("RUSR {}".format(self.username).encode())
+                        resp = self.sock.recv(1024).decode().split()[0]
+                        if resp != "202":
+                            print("invalid username is already registered")
+                            self.username = ""
+                            self.password = ""
+                            continue
+
+                        self.sock.send("RPAS {}".format(self.password).encode())
+                        print(self.password)
+                        resp = self.sock.recv(1024).decode().split()[0]
+                        if resp != "291":
+                            print("invalid password reg bos")
+                            self.username = ""
+                            self.password = ""
+                            continue
+                        print("registration ok. proceed to login!")
+
                         return 1
-                    elif self.back_rect.collidepoint(mousepos):
+                    elif self.back_rect.collidepoint(mousepos): # back button
                         return 1
 
                 if is_username:

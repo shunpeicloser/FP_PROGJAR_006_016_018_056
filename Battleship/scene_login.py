@@ -2,7 +2,7 @@ import pygame
 import utility
 
 class LoginScene:
-    def __init__(self):
+    def __init__(self, sock):
         self.screen = None
         self.SCREEN_RESOLUTION = (640, 640)
         self.resource = {}
@@ -14,6 +14,9 @@ class LoginScene:
         self.quit_rect = pygame.rect.Rect(40, 550, 260, 60)
         self.register_rect = pygame.rect.Rect(320, 550, 260, 60)
         self.boxcolor = pygame.Color('black')
+
+        # socket to server
+        self.sock = sock
     
     def loadresource(self):
         try:
@@ -93,7 +96,25 @@ class LoginScene:
                     if self.register_rect.collidepoint(mousepos):
                         return 2
                     elif self.login_rect.collidepoint(mousepos):
-                        
+                        # attempt to login
+                        self.sock.send("LUSR {}".format(self.username).encode())
+                        resp = self.sock.recv(1024).decode().split()[0]
+                        # get response code
+                        if resp != "201":
+                            print("invalid login bos")
+                            self.username = ""
+                            self.password = ""
+                            continue
+
+                        # continue with password
+                        self.sock.send("LPAS {}".format(self.password).encode())
+                        resp = self.sock.recv(1024).decode().split()[0]
+                        if resp != "290":
+                            print("invalid login bos")
+                            self.username = ""
+                            self.password = ""
+                            continue
+                        print("login success. to the lobby we go!")
                         return 4
                     elif self.quit_rect.collidepoint(mousepos):
                         return 0

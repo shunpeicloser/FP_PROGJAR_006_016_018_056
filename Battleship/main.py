@@ -16,12 +16,12 @@ if welcome:
     print("Connected to server yay :D")
 
 gamestatus = 1
-ls = scene_login.LoginScene()
-regs = scene_register.RegisterScene()
-rs = scene_room.RoomScene()
-bs = scene_battle.BattleScene(board.Board(10), control.Control())
-hs = scene_highscore.HighscoreScene()
-lbs = scene_lobby2.LobbyScene()
+ls = scene_login.LoginScene(sock)
+regs = scene_register.RegisterScene(sock)
+rs = scene_room.RoomScene(sock)
+bs = scene_battle.BattleScene(board.Board(10), control.Control(), sock)
+hs = scene_highscore.HighscoreScene(sock)
+lbs = scene_lobby2.LobbyScene(sock)
 while gamestatus > 0:
     if gamestatus == 1:
         gamestatus = ls.run()
