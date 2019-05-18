@@ -4,7 +4,7 @@ import player
 import pickle
 
 class LobbyScene:
-	def __init__(self, sock):
+	def __init__(self, sock, q):
 		self.screen = None
 		self.SCREEN_RESOLUTION = (640, 640)
 		self.resource = {}
@@ -20,6 +20,9 @@ class LobbyScene:
 
 		# socket to server
 		self.sock = sock
+
+		# msg queue
+		self.q = q
 
 	def loadResource(self):
 		try:
@@ -85,8 +88,6 @@ class LobbyScene:
 		self.sock.send(b"PLST")
 		self.lobby = self.sock.recv(1024)
 		self.lobby = pickle.loads(self.lobby)
-		for player in self.lobby:
-			print(player.name)
 
 	def startScene(self):
 		pygame.init()
@@ -95,6 +96,8 @@ class LobbyScene:
 		mousepos = None
 		self.getPlayers()
 		while running:
+			if not self.q.empty():
+				print(self.q.get())
 			self.screen.fill((0, 0, 0))
 			for event in pygame.event.get():
 				if event.type == pygame.QUIT:
@@ -109,11 +112,13 @@ class LobbyScene:
 						# refresh event here
 						print("refreshed")
 						self.getPlayers()
+						continue
 					for i in range(len(self.lobby)):
 						if(self.lobby[i].is_ingame() != True):
 							if self.lobby[i].getRect().collidepoint(mousepos):
-								print(self.lobby[i].getname())
-								return 4
+								print("i clicked", self.lobby[i].getname())
+								self.sock.send("INVT {}".format(self.lobby[i].getname()).encode())
+								# return 4
 				self.drawScreen()
 				pygame.display.update()
 
