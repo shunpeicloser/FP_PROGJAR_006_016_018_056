@@ -2,7 +2,7 @@ import pygame
 import utility
 
 class LoginScene:
-    def __init__(self, sock):
+    def __init__(self, sock, challenge_sock):
         self.screen = None
         self.SCREEN_RESOLUTION = (640, 640)
         self.resource = {}
@@ -17,6 +17,7 @@ class LoginScene:
 
         # socket to server
         self.sock = sock
+        self.challenge_sock = challenge_sock
     
     def loadresource(self):
         try:
@@ -115,6 +116,14 @@ class LoginScene:
                             self.username = ""
                             self.password = ""
                             continue
+
+                        # initiating challenge socket
+                        self.challenge_sock.connect(("127.0.0.1", 9001))
+                        self.challenge_sock.send("CSCK {}".format(self.username).encode())
+                        resp = self.challenge_sock.recv(1024)
+                        print(resp.decode())
+
+
                         print("login success. to the lobby we go!")
                         return 6
                     elif self.quit_rect.collidepoint(mousepos):
