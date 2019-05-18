@@ -88,33 +88,6 @@ class LobbyScene:
 		for player in self.lobby:
 			print(player.name)
 
-		self.drawPlayers()
-
-	def drawPlayers(self):
-		num_id = []
-		player_name = []
-		basey = 150
-		z = 0
-		for i in range(len(self.lobby)):
-			list_user = self.lobby[i]
-			if(list_user.is_ingame() != True):
-				num_id.append(pygame.font.Font(None, 45).render(str(z+1), True, pygame.Color('white')))
-				player_name.append(pygame.font.Font(None, 45).render(str(list_user.getname()), True, pygame.Color('white')))
-				self.screen.blit(num_id[z], (70,basey))
-				self.screen.blit(player_name[z], (250,basey))
-
-				list_user.createRect(pygame.rect.Rect(65, basey, 490, 30))
-				list_user.creteFill(pygame.Surface((490, 30)))
-				if ((z%2) == 0):
-					list_user.getFill().set_alpha(60)
-				else:
-					list_user.getFill().set_alpha(0)
-				list_user.getFill().fill((0, 0, 0))
-				self.screen.blit(list_user.getFill(), (list_user.getRect().x, list_user.getRect().y))
-
-				basey = basey + 30
-				z = z + 1
-
 	def startScene(self):
 		pygame.init()
 		self.screen = pygame.display.set_mode(self.SCREEN_RESOLUTION)

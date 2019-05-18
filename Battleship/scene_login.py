@@ -96,6 +96,7 @@ class LoginScene:
                     if self.register_rect.collidepoint(mousepos):
                         return 2
                     elif self.login_rect.collidepoint(mousepos):
+                        print(self.username, self.password)
                         # attempt to login
                         self.sock.send("LUSR {}".format(self.username).encode())
                         resp = self.sock.recv(1024).decode().split()[0]
@@ -123,12 +124,14 @@ class LoginScene:
                     if event.type == pygame.KEYUP:
                         if event.key == pygame.K_BACKSPACE:
                             self.username = self.username[:-1]
+                            # self.username.pop()
                         else:
                             self.username += chr(event.key)
                 elif is_password:
                     if event.type == pygame.KEYUP:
                         if event.key == pygame.K_BACKSPACE:
                             self.password = self.password[:-1]
+                            # self.password.pop()
                         else:
                             self.password += chr(event.key)
                 self.drawscreen()
