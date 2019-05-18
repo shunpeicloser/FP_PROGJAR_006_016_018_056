@@ -16,7 +16,7 @@ class ClientThread(threading.Thread):
     def __init__(self, sock: socket, address: tuple, player_list: dict):
         threading.Thread.__init__(self)
         self.sock = sock
-        self.addres = address
+        self.address = address
         self.live = True
         self.player_list = player_list
 
@@ -25,7 +25,7 @@ class ClientThread(threading.Thread):
 
 
     def run(self):
-        print("Sending HELO to", self.addres)
+        print("Sending HELO to", self.address)
         self.sock.send(b"HELO")
         self.conn = sqlite3.connect("battleship.db")
         while self.live:
@@ -40,10 +40,11 @@ class ClientThread(threading.Thread):
             if command == "PLST":
                 print(self.showPlayerList())
             if command == "QUIT":
-                print(self.addres, "said goodbye :(")
+                print(self.address, "said goodbye :(")
                 self.sock.send(b"BYE")
                 self.sock.close()
                 self.live = False
+                self.player_list.pop(self.player.name)
                 self.conn.close()
 
 
