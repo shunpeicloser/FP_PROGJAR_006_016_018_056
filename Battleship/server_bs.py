@@ -105,8 +105,8 @@ class ClientThread(threading.Thread):
         for name, player in self.player_list.items():
             plist += [player]
             print(player.name)
-        # pickled_list =
-        self.sock.send(b"VIEW PLAYER LIST")
+        pickled_list = pickle.dumps(plist)
+        self.sock.send(pickled_list)
         return "204"
 
 
