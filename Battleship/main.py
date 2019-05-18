@@ -31,10 +31,13 @@ class SocketListener(threading.Thread):
         self.daemon = True
         print("here we go listener")
     def run(self):
-        while True:
-            data = self.sock.recv(1024)
-            self.q.put(data.decode())
-
+        try:
+            while True:
+                data = self.sock.recv(1024)
+                self.q.put(data.decode())
+        except ConnectionAbortedError:
+            print("Exiting socket listener...")
+            return
 q = Queue()
 
 gamestatus = 1

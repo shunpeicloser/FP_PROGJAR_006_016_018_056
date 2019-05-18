@@ -36,6 +36,8 @@ class ClientThread(threading.Thread):
                 print(self.showPlayerList())
             if command == "INVT":
                 print(self.invite(argument))
+            if command == "HSCO":
+                print(self.highscore())
             if command == "QUIT":
                 name = self.player.name
                 print(name, self.address, "said goodbye :(")
@@ -91,7 +93,6 @@ class ClientThread(threading.Thread):
             self.sock.send(b"499 Unknown Command")
             return "499"
 
-
     def register(self, user):
         detail = dbconn.get_user(self.conn, user)
         if detail:
@@ -144,6 +145,13 @@ class ClientThread(threading.Thread):
         self.player_list[opponent].goPlay()
 
         return "293"
+
+    def highscore(self):
+        score_list = dbconn.get_highscore(self.conn)
+        print(score_list)
+        score_pickled = pickle.dumps(score_list)
+        self.sock.send(score_pickled)
+        return "295"
 
 class BattleshipServer:
     def __init__(self, ip = "127.0.0.1", port = 9000):

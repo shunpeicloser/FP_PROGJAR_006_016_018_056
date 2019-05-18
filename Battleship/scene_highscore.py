@@ -1,5 +1,6 @@
 import pygame
 import utility
+import pickle
 
 class HighscoreScene:
 	def __init__(self, sock):
@@ -8,10 +9,13 @@ class HighscoreScene:
 		self.resource = {}
 		# self.username = []
 		# self.points
-		self.username = ['agu','sat','ceh','yar','tam','adi','tej','jee','pl9','pl10']
-		self.points = ['10','9','8','7','6','5','4','3','2','1']
+		self.username = [] #['agu','sat','ceh','yar','tam','adi','tej','jee','pl9','pl10']
+		self.points = [] #['10','9','8','7','6','5','4','3','2','1']
 		self.quit_rect = pygame.rect.Rect(40, 550, 150, 60)
 		self.boxcolor = pygame.Color('black')
+
+		# socket to server
+		self.sock = sock
 
 	def loadResource(self):
 		try:
@@ -29,7 +33,7 @@ class HighscoreScene:
 		pygame.draw.rect(self.screen, self.boxcolor, self.quit_rect, 8)
 		
 		# Quit Button
-		quit_surface = pygame.font.Font(None, 64).render('QUIT', True, pygame.Color('white'))
+		quit_surface = pygame.font.Font(None, 64).render('BACK', True, pygame.Color('white'))
 		quit_fill = pygame.Surface((150, 60))
 		quit_fill.fill((0, 0, 0))
 		self.screen.blit(quit_fill, (self.quit_rect.x, self.quit_rect.y))
@@ -63,11 +67,26 @@ class HighscoreScene:
 			self.screen.blit(poin[i], (500,basey))
 			basey = basey + 30
 
+	def getScores(self):
+		# clearing up
+		self.username = []
+		self.points = []
+
+		# fetch hiscore
+		self.sock.send(b"HSCO")
+		score_list = self.sock.recv(1024)
+		# print(score_list)
+		score_list = pickle.loads(score_list)
+		for username, score in score_list:
+			self.username.append(username)
+			self.points.append(str(score))
+
 	def startScene(self):
 		pygame.init()
 		self.screen = pygame.display.set_mode(self.SCREEN_RESOLUTION)
 		running = self.loadResource()
 		mousepos = None
+		self.getScores()
 		while running:
 			self.screen.fill((0, 0, 0))
 			for event in pygame.event.get():
@@ -78,7 +97,7 @@ class HighscoreScene:
 				mousepos = pygame.mouse.get_pos()
 				if event.type == pygame.MOUSEBUTTONUP:
 					if self.quit_rect.collidepoint(mousepos):
-						return 0
+						return 6
 				self.drawScreen()
 				pygame.display.update()
 
