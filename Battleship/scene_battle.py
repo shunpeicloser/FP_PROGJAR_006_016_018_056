@@ -170,18 +170,18 @@ class BattleScene:
         return 0
 
     def isplacementfinished(self, idxship):
-        if idxship == 10:
+        if idxship == 6:
             # debug: is_attackphase; Production: is_waitingopponent
             return None, self.ctl.IS_ATTACKPHASE
         if idxship == 0:
             return battleship.Battleship.SHIP_TYPE[0], self.ctl.IS_PLACINGSHIP
-        elif idxship <= 2:
+        elif idxship <= 1:
             return battleship.Battleship.SHIP_TYPE[1], self.ctl.IS_PLACINGSHIP
-        elif idxship <= 4:
+        elif idxship <= 2:
             return battleship.Battleship.SHIP_TYPE[2], self.ctl.IS_PLACINGSHIP
-        elif idxship <= 5:
+        elif idxship <= 3:
             return battleship.Battleship.SHIP_TYPE[3], self.ctl.IS_PLACINGSHIP
-        elif idxship <= 9:
+        elif idxship <= 5:
             return battleship.Battleship.SHIP_TYPE[4], self.ctl.IS_PLACINGSHIP
 
     # initialization of game

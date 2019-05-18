@@ -15,6 +15,20 @@ class ClientThread(threading.Thread):
         self.player_list = player_list
         self.socket_list = socket_list
 
+        # teje: butuh array buat simpan posisi kapal player
+        # mockup: self.occupied, ClientThread.getPlayerShipPosition(), BattleshipServer.isLose()
+        # Attack Procedure
+        # 1. player attack, get atk coordinate X
+        # 2. server check if X in self.occupied['enemy'], if yes remove it from self.occupied['enemy']
+        # 3. server run isLose() function to check win/lose condition. If true send win/lose signal to clients
+        #    If not, proceed to 4.
+        # 4. send X to enemy to be drawn on their own board
+        # 5. change turn
+
+        self.occupied = dict()
+        self.occupied.update({'p1': []})
+        self.occupied.update({'p2': []})
+
         # describes player in thread
         self.player = Player("")
 
@@ -153,6 +167,9 @@ class ClientThread(threading.Thread):
         self.sock.send(score_pickled)
         return "295"
 
+    def getPlayerShipPosition(self):
+        # get player occupied tile. Get the data from scene_battle: BattleScene.occupied
+        return
 class BattleshipServer:
     def __init__(self, ip = "127.0.0.1", port = 9000):
 
@@ -192,6 +209,12 @@ class BattleshipServer:
                     print("Challenge sock with", name, "initiated")
                     self.socket_list[name]["challenge"] = conn
                     self.socket_list[name]["challenge"].send(b"PAIRED")
+
+    def isLose(self, player): # win/lose condition
+        if self.occupied[player].__len__() == 0:
+            return True
+        return False
+    
 
 bsserver = BattleshipServer()
 
