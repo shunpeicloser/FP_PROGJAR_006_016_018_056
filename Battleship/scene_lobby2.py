@@ -3,7 +3,7 @@ import utility
 import player
 
 class LobbyScene:
-	def __init__(self):
+	def __init__(self, sock):
 		self.screen = None
 		self.SCREEN_RESOLUTION = (640, 640)
 		self.resource = {}
@@ -14,6 +14,7 @@ class LobbyScene:
 				temp.goPlay()
 			self.lobby.append(temp)
 		self.quit_rect = pygame.rect.Rect(40, 550, 150, 60)
+		self.refresh_rect = pygame.rect.Rect(210, 550, 230, 60)
 		self.boxcolor = pygame.Color('black')
 
 	def loadResource(self):
@@ -30,9 +31,13 @@ class LobbyScene:
 		for item in self.resource:
 			self.screen.blit(self.resource[item][0], self.resource[item][1])
 		pygame.draw.rect(self.screen, self.boxcolor, self.quit_rect, 8)
+		pygame.draw.rect(self.screen, self.boxcolor, self.refresh_rect, 8)
 		quit_surface = pygame.font.Font(None, 64).render('QUIT', True, pygame.Color('white'))
+		refresh_surface = pygame.font.Font(None, 64).render('REFRESH', True, pygame.Color('white'))
 		quit_fill = pygame.Surface((150, 60))
+		refresh_fill = pygame.Surface((230, 60))
 		quit_fill.fill((0, 0, 0))
+		refresh_fill.fill((0, 0, 0))
 		
 		num_id = []
 		player_name = []
@@ -68,6 +73,8 @@ class LobbyScene:
 
 		self.screen.blit(quit_fill, (self.quit_rect.x, self.quit_rect.y))
 		self.screen.blit(quit_surface, (self.quit_rect.x + 8, self.quit_rect.y + 8))
+		self.screen.blit(refresh_fill, (self.refresh_rect.x, self.refresh_rect.y))
+		self.screen.blit(refresh_surface, (self.refresh_rect.x + 8, self.refresh_rect.y + 8))
 
 	def startScene(self):
 		pygame.init()
@@ -85,6 +92,9 @@ class LobbyScene:
 				if event.type == pygame.MOUSEBUTTONUP:
 					if self.quit_rect.collidepoint(mousepos):
 						return 0
+					if self.refresh_rect.collidepoint(mousepos):
+						# refresh event here
+						print("refreshed")
 					for i in range(len(self.lobby)):
 						if(self.lobby[i].is_ingame() != True):
 							if self.lobby[i].getRect().collidepoint(mousepos):

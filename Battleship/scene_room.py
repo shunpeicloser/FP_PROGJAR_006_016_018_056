@@ -2,7 +2,7 @@ import pygame
 import utility
 
 class RoomScene:
-    def __init__(self):
+    def __init__(self, sock):
         self.screen = None
         self.SCREEN_RESOLUTION = (640, 640)
         self.resource = {}

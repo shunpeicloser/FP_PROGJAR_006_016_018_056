@@ -9,7 +9,7 @@ import control
 
 class BattleScene:
 
-    def __init__(self, board, ctl):
+    def __init__(self, board, ctl, sock):
         self.board = board
         self.is_attackboard = False
         self.SCREEN_RESOLUTION = (900, 640)

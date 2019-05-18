@@ -115,7 +115,7 @@ class LoginScene:
                             self.password = ""
                             continue
                         print("login success. to the lobby we go!")
-                        return 4
+                        return 6
                     elif self.quit_rect.collidepoint(mousepos):
                         return 0
 
