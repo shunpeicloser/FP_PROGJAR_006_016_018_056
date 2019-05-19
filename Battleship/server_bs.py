@@ -32,6 +32,10 @@ class BattleSession(threading.Thread):
         # current player's turn
         self.turn = 1
 
+        # current turn count
+        self.turn_count = 1
+
+
     def startbattle(self):
         if self.started:
             return
@@ -70,6 +74,13 @@ class BattleSession(threading.Thread):
             return self.ready[2]
         else:
             return self.ready[1]
+
+    def is_hit(self, player, coor):
+        if player == 1:
+            return coor in self.occupied[2]
+        if player == 2:
+            return coor in self.occupied[1]
+
 
 class ClientThread(threading.Thread):
     def __init__(self, sock: socket, address: tuple, player_list: dict,
@@ -282,7 +293,8 @@ class ClientThread(threading.Thread):
             pass
         print(opponent, "is readdy. Lets go")
 
-        bs.startbattle()
+        if as_player == 1:
+            bs.startbattle()
         while True:
             # check if current turn
             while not bs.is_turn(as_player):
@@ -295,6 +307,10 @@ class ClientThread(threading.Thread):
             if command == "ATT":
                 # print(self.player.name, "attacked", opponent, "on", "".join(self.convert_coordinate(argument)))
                 # alpha, number = argument.split()
+                if bs.is_hit(as_player, self.convert_coordinate(argument)):
+                    csock.send("HIT {}".format(argument).encode())
+                else:
+                    csock.send("MISS {}".format(argument).encode())
                 o_csock.send("ATTD {}".format(argument).encode())
 
             print("my turn is done", self.player.name)
@@ -312,9 +328,9 @@ class ClientThread(threading.Thread):
 
     def convert_coordinate(self, coor):
         alpha, number = coor.split()
-        number = (int(number)-40)//56 + 1
+        number = str((int(number)-40)//56 + 1)
         alpha = chr(65 + (int(alpha)-40)//56)
-        return (number, alpha)
+        return alpha+number
 
 class BattleshipServer:
     def __init__(self, ip = "127.0.0.1", port = 9000):

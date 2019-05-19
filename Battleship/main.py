@@ -20,8 +20,8 @@ if welcome:
 
 challenge_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-# import player
-# the_player = player.Player("")
+import player
+the_player = player.Player("")
 
 class SocketListener(threading.Thread):
     def __init__(self, sock, q):
@@ -35,16 +35,16 @@ class SocketListener(threading.Thread):
             while True:
                 data = self.sock.recv(1024)
                 self.q.put(data.decode())
-        except ConnectionAbortedError:
+        except:
             print("Exiting socket listener...")
             return
 q = Queue()
 
 gamestatus = 1
-ls = scene_login.LoginScene(sock, challenge_sock)
+ls = scene_login.LoginScene(sock, challenge_sock, the_player)
 regs = scene_register.RegisterScene(sock)
 rs = scene_room.RoomScene(sock)
-bs = scene_battle.BattleScene(board.Board(10), control.Control(), sock, q)
+bs = scene_battle.BattleScene(board.Board(10), control.Control(), sock, q, the_player)
 hs = scene_highscore.HighscoreScene(sock)
 lbs = scene_lobby2.LobbyScene(sock, q)
 while gamestatus > 0:

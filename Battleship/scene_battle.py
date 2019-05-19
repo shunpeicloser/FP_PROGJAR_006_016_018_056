@@ -11,7 +11,7 @@ import pickle
 
 class BattleScene:
 
-    def __init__(self, board, ctl, sock, q):
+    def __init__(self, board, ctl, sock, q, player):
         self.board = board
         self.is_attackboard = False
         self.SCREEN_RESOLUTION = (900, 640)
@@ -22,13 +22,19 @@ class BattleScene:
         self.occupied = []
         self.drawnbattleship = []
         self.attackboard = []
+        self.attackboard_hit = []
         self.defboard = []
+        self.defboard_hit = []
+
 
         # socket to server
         self.sock = sock
 
         # queue for listener
         self.q = q
+
+        # player detail
+        self.player = player
 
         # hardcoded, males bikin class
         pygame.font.init()
@@ -160,6 +166,8 @@ class BattleScene:
         else:
             for attacking in self.attackboard:
                 self.screen.blit(self.originobject['cross'], attacking)
+            for attacking in self.attackboard_hit:
+                self.screen.blit(self.originobject['green_cross'], attacking)
 
     def placebattleship(self, mousepos):
         tm = self.ctl.getboardcoordinate(self.board, mousepos)
@@ -201,11 +209,13 @@ class BattleScene:
         self.ctl.mousestatus = self.ctl.IS_PLACINGSHIP
 
         pygame.init()
-        pygame.display.set_caption(str(
-                                    self.p1.getname() +
-                                    " VS " +
-                                    self.p2.getname()
-                                    ))
+        title = "[" +self.player.name + "] in Battle => x[" + self.p1.getname() + " vs. " + self.p2.getname() + "]x"
+        # pygame.display.set_caption(str(
+        #                             self.p1.getname() +
+        #                             " VS " +
+        #                             self.p2.getname()
+        #                             ))
+        pygame.display.set_caption(title)
         self.screen = pygame.display.set_mode(self.SCREEN_RESOLUTION)
 
         err = self.loadresource()
@@ -245,6 +255,14 @@ class BattleScene:
                         attack_coor = (int(msg[1]), int(msg[2]))
                         print("i am attacked", attack_coor)
                         self.defboard.append(attack_coor)
+                    if msg[0] == "HIT":
+                        attack_coor = (int(msg[1]), int(msg[2]))
+                        print("i successfully hit", attack_coor)
+                        self.attackboard_hit.append(attack_coor)
+                    if msg[0] == "MISS":
+                        attack_coor = (int(msg[1]), int(msg[2]))
+                        print("i missed a shot at", attack_coor)
+                        self.attackboard.append(attack_coor)
                     if msg[0] == "ORDY":
                         opponent_is_ready = True
                         print("Opponent is now ready")
@@ -272,7 +290,7 @@ class BattleScene:
                             tmp = self.ctl.getpixelcoordinate(self.board, tuple(tmp))
                             print("i attacked", tmp)
                             self.sock.send("ATT {} {}".format(*tmp).encode())
-                            self.attackboard.append(tuple(tmp)) # add cross to coordinate in attack board
+                            # self.attackboard.append(tuple(tmp)) # add cross to coordinate in attack board
                             # self.defboard.append(tuple(tmp)) # add cross to coordinate in my board
 
                 # case player in 'placing battleship' phase
