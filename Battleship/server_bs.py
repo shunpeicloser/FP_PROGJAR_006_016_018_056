@@ -238,11 +238,18 @@ class ClientThread(threading.Thread):
         else:
             self.sock.send(b"GOAWAY")
 
+        # opponent's name
+        opponent = ''
+        if as_player == 1:
+            opponent = bs.player2.name
+        else:
+            opponent = bs.player1.name
+
         # ship placing phase below
         # pass
 
         # challenge sock
-        csock = self.socket_list[self.player.name]["challenge"]
+        csock = self.socket_list[opponent]["challenge"]
 
         bs.startbattle()
         while True:
@@ -255,8 +262,11 @@ class ClientThread(threading.Thread):
             command, argument = data_splitted[0], " ".join(data_splitted[1:])
             # print(data_splitted)
             if command == "ATT":
-                print(self.player.name, "attacked", argument, self.convert_coordinate(argument))
+                # print(self.player.name, "attacked", opponent, "on", "".join(self.convert_coordinate(argument)))
+                # alpha, number = argument.split()
+                csock.send("ATTD {}".format(argument).encode())
 
+            print("my turn is done", self.player.name)
             # switch turn
             bs.switch_turn()
 

@@ -228,13 +228,18 @@ class BattleScene:
             self.drawboarditems()
             for event in pygame.event.get():
                 if not self.q.empty():
-                    msg = self.q.get()
-                    if msg == "WAIT":
+                    msg = self.q.get().split()
+                    print(msg)
+                    if msg[0] == "WAIT":
                         waiting_turn = True
                         print("I have to wait")
-                    if msg == "TURN":
+                    if msg[0] == "TURN":
                         waiting_turn = False
                         print("Its my turn")
+                    if msg[0] == "ATTD":
+                        attack_coor = (int(msg[1]), int(msg[2]))
+                        print("i am attacked", attack_coor)
+                        self.defboard.append(attack_coor)
                 if event.type == pygame.QUIT:
                     running = False
                     return 0
@@ -260,7 +265,7 @@ class BattleScene:
                             print("i attacked", tmp)
                             self.sock.send("ATT {} {}".format(*tmp).encode())
                             self.attackboard.append(tuple(tmp)) # add cross to coordinate in attack board
-                            self.defboard.append(tuple(tmp)) # add cross to coordinate in my board
+                            # self.defboard.append(tuple(tmp)) # add cross to coordinate in my board
 
                 # case player in 'placing battleship' phase
                 if self.ctl.mousestatus == self.ctl.IS_PLACINGSHIP:

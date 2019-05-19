@@ -5,7 +5,8 @@ class Player:
         self.ingame = False
         self.my_rect = None
         self.my_fill = None
-    
+
+
     def getname(self):
         return self.name
 
