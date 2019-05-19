@@ -15,17 +15,31 @@ class BattleSession(threading.Thread):
         self.player1_socket = player1_socket
         self.player2_socket = player2_socket
 
+        self.started = False
+
         # ship placement
-        self.occupied = {}
+        self.occupied = {
+            1: [],
+            2: []
+        }
+
+        # player ready status
+        self.ready = {
+            1: False,
+            2: False
+        }
 
         # current player's turn
         self.turn = 1
 
     def startbattle(self):
+        if self.started:
+            return
         # send TURN to p1
         self.player1_socket["challenge"].send(b"TURN")
         # send WAIT to p2
         self.player2_socket["challenge"].send(b"WAIT")
+        self.started = True
 
     def check_player(self, player_name):
         if player_name == self.player1.name:
@@ -50,6 +64,12 @@ class BattleSession(threading.Thread):
             self.player1_socket["challenge"].send(b"TURN")
             # send WAIT to p2
             self.player2_socket["challenge"].send(b"WAIT")
+
+    def is_opponent_ready(self, player):
+        if player == 1:
+            return self.ready[2]
+        else:
+            return self.ready[1]
 
 class ClientThread(threading.Thread):
     def __init__(self, sock: socket, address: tuple, player_list: dict,
@@ -117,7 +137,6 @@ class ClientThread(threading.Thread):
                     self.player_list.pop(self.player.name)
 
                 # self.conn.close()
-
 
     def login(self, user):
         detail = dbconn.get_user(self.conn, user)
@@ -245,11 +264,23 @@ class ClientThread(threading.Thread):
         else:
             opponent = bs.player1.name
 
-        # ship placing phase below
-        # pass
-
         # challenge sock
-        csock = self.socket_list[opponent]["challenge"]
+        o_csock = self.socket_list[opponent]["challenge"] # opponent's socket
+        csock = self.socket_list[self.player.name]["challenge"] # self's socket
+
+        # ship placing phase below
+        data = self.sock.recv(1024)
+        command, occupy = data.split(b" ")
+        if command.decode() == "OCUP":
+            bs.occupied[as_player] = pickle.loads(occupy)
+            o_csock.send(b"ORDY")
+            bs.ready[as_player] = True
+
+        # wait for opponent ready
+        print(self.player.name, "is waiting for", opponent, "to ready")
+        while not bs.is_opponent_ready(as_player):
+            pass
+        print(opponent, "is readdy. Lets go")
 
         bs.startbattle()
         while True:
@@ -264,7 +295,7 @@ class ClientThread(threading.Thread):
             if command == "ATT":
                 # print(self.player.name, "attacked", opponent, "on", "".join(self.convert_coordinate(argument)))
                 # alpha, number = argument.split()
-                csock.send("ATTD {}".format(argument).encode())
+                o_csock.send("ATTD {}".format(argument).encode())
 
             print("my turn is done", self.player.name)
             # switch turn

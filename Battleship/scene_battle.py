@@ -7,6 +7,8 @@ import battleship
 import utility
 import control
 
+import pickle
+
 class BattleScene:
 
     def __init__(self, board, ctl, sock, q):
@@ -47,6 +49,7 @@ class BattleScene:
         ret.update({'board': None})
         ret.update({'explosion': None})
         ret.update({'cross': None})
+        ret.update({'green_cross': None})
         return ret
 
     # load resource before the start of game
@@ -55,6 +58,7 @@ class BattleScene:
             self.originobject.update({'board':  utility.Utility.loadimage("board.png")})
             # self.originobject['explosion'] = pygame.image.load("explosion.png")
             self.originobject.update({'cross': utility.Utility.loadimage("cross.png")})
+            self.originobject.update({'green_cross': utility.Utility.loadimage("green_cross.png")})
             for model in battleship.Battleship.SHIP_TYPE:
                 self.originobject['battleship'].update(
                     {model: battleship.Battleship(model, str(model+".png"))})
@@ -221,6 +225,7 @@ class BattleScene:
         self.ctl.selectedbattleship = battleship.Battleship.SHIP_TYPE[0]
         running = self.initgame(p1name, p2name)
         waiting_turn = True
+        opponent_is_ready = False
         mousepos = None
         while running:
             self.screen.fill((0, 0, 0))
@@ -240,6 +245,9 @@ class BattleScene:
                         attack_coor = (int(msg[1]), int(msg[2]))
                         print("i am attacked", attack_coor)
                         self.defboard.append(attack_coor)
+                    if msg[0] == "ORDY":
+                        opponent_is_ready = True
+                        print("Opponent is now ready")
                 if event.type == pygame.QUIT:
                     running = False
                     return 0
@@ -256,7 +264,7 @@ class BattleScene:
                     if self.is_attackboard:
                         if not self.illegalattack(self.ctl.getboardcoordinate(self.board, mousepos)):
                             tmp = self.ctl.getboardcoordinate(self.board, mousepos)
-                            if tmp == None or waiting_turn:
+                            if tmp == None or waiting_turn or not opponent_is_ready:
                                 continue
                             tmp = list(tmp)
                             tmp[0] = chr(ord(tmp[0])-1)
@@ -282,6 +290,8 @@ class BattleScene:
 
                     # case to change the battleship in placing phase
                     self.ctl.selectedbattleship, self.ctl.mousestatus = self.isplacementfinished(idxship)
+                    if not self.ctl.selectedbattleship:
+                        self.sock.send(b"OCUP " + pickle.dumps(self.occupied))
 
                     self.mousehover(self.ctl.getboardcoordinate(self.board, mousepos))
 
