@@ -44,7 +44,7 @@ gamestatus = 1
 ls = scene_login.LoginScene(sock, challenge_sock)
 regs = scene_register.RegisterScene(sock)
 rs = scene_room.RoomScene(sock)
-bs = scene_battle.BattleScene(board.Board(10), control.Control(), sock)
+bs = scene_battle.BattleScene(board.Board(10), control.Control(), sock, q)
 hs = scene_highscore.HighscoreScene(sock)
 lbs = scene_lobby2.LobbyScene(sock, q)
 while gamestatus > 0:

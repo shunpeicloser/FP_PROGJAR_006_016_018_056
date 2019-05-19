@@ -18,12 +18,38 @@ class BattleSession(threading.Thread):
         # ship placement
         self.occupied = {}
 
+        # current player's turn
+        self.turn = 1
+
+    def startbattle(self):
+        # send TURN to p1
+        self.player1_socket["challenge"].send(b"TURN")
+        # send WAIT to p2
+        self.player2_socket["challenge"].send(b"WAIT")
+
     def check_player(self, player_name):
         if player_name == self.player1.name:
-            return "p1"
+            return 1
         if player_name == self.player2.name:
-            return "p2"
+            return 2
         return False
+
+    def is_turn(self, player):
+        return self.turn == player
+
+    def switch_turn(self):
+        if self.turn == 1:
+            self.turn = 2
+            # send TURN to p2
+            self.player2_socket["challenge"].send(b"TURN")
+            # send WAIT to p1
+            self.player1_socket["challenge"].send(b"WAIT")
+        else:
+            self.turn = 1
+            # send TURN to p1
+            self.player1_socket["challenge"].send(b"TURN")
+            # send WAIT to p2
+            self.player2_socket["challenge"].send(b"WAIT")
 
 class ClientThread(threading.Thread):
     def __init__(self, sock: socket, address: tuple, player_list: dict,
@@ -46,9 +72,9 @@ class ClientThread(threading.Thread):
         # 4. send X to enemy to be drawn on their own board
         # 5. change turn
 
-        self.occupied = dict()
-        self.occupied.update({'p1': []})
-        self.occupied.update({'p2': []})
+        # self.occupied = dict()
+        # self.occupied.update({'p1': []})
+        # self.occupied.update({'p2': []})
 
         # describes player in thread
         self.player = Player("")
@@ -180,7 +206,7 @@ class ClientThread(threading.Thread):
         # create new battle session
         bsid = str(len(self.battle_list)*17+1)
         bs = BattleSession(bsid, self.player_list[opponent], self.player,
-                           self.socket_list[self.player.name], self.socket_list[opponent])
+                           self.socket_list[opponent], self.socket_list[self.player.name])
         self.battle_list[bsid] = bs
 
         msg = "BATL {} {} {}".format(opponent, self.player.name, bsid)
@@ -215,13 +241,25 @@ class ClientThread(threading.Thread):
         # ship placing phase below
         # pass
 
+        # challenge sock
+        csock = self.socket_list[self.player.name]["challenge"]
+
+        bs.startbattle()
         while True:
+            # check if current turn
+            while not bs.is_turn(as_player):
+                pass # do nothing
+            print("its", self.player.name, "turn")
             data = self.sock.recv(1024)
             data_splitted = data.decode().split()
             command, argument = data_splitted[0], " ".join(data_splitted[1:])
             # print(data_splitted)
             if command == "ATT":
                 print(self.player.name, "attacked", argument, self.convert_coordinate(argument))
+
+            # switch turn
+            bs.switch_turn()
+
 
 
 

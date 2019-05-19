@@ -9,7 +9,7 @@ import control
 
 class BattleScene:
 
-    def __init__(self, board, ctl, sock):
+    def __init__(self, board, ctl, sock, q):
         self.board = board
         self.is_attackboard = False
         self.SCREEN_RESOLUTION = (900, 640)
@@ -24,6 +24,9 @@ class BattleScene:
 
         # socket to server
         self.sock = sock
+
+        # queue for listener
+        self.q = q
 
         # hardcoded, males bikin class
         pygame.font.init()
@@ -217,12 +220,21 @@ class BattleScene:
         idxship = 0
         self.ctl.selectedbattleship = battleship.Battleship.SHIP_TYPE[0]
         running = self.initgame(p1name, p2name)
+        waiting_turn = True
         mousepos = None
         while running:
             self.screen.fill((0, 0, 0))
             self.screen.blit(self.originobject['board'], (0, 0))
             self.drawboarditems()
             for event in pygame.event.get():
+                if not self.q.empty():
+                    msg = self.q.get()
+                    if msg == "WAIT":
+                        waiting_turn = True
+                        print("I have to wait")
+                    if msg == "TURN":
+                        waiting_turn = False
+                        print("Its my turn")
                 if event.type == pygame.QUIT:
                     running = False
                     return 0
@@ -239,7 +251,7 @@ class BattleScene:
                     if self.is_attackboard:
                         if not self.illegalattack(self.ctl.getboardcoordinate(self.board, mousepos)):
                             tmp = self.ctl.getboardcoordinate(self.board, mousepos)
-                            if tmp == None:
+                            if tmp == None or waiting_turn:
                                 continue
                             tmp = list(tmp)
                             tmp[0] = chr(ord(tmp[0])-1)
@@ -247,7 +259,8 @@ class BattleScene:
                             tmp = self.ctl.getpixelcoordinate(self.board, tuple(tmp))
                             print("i attacked", tmp)
                             self.sock.send("ATT {} {}".format(*tmp).encode())
-                            self.attackboard.append(tuple(tmp))
+                            self.attackboard.append(tuple(tmp)) # add cross to coordinate in attack board
+                            self.defboard.append(tuple(tmp)) # add cross to coordinate in my board
 
                 # case player in 'placing battleship' phase
                 if self.ctl.mousestatus == self.ctl.IS_PLACINGSHIP:
