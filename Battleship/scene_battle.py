@@ -22,6 +22,9 @@ class BattleScene:
         self.attackboard = []
         self.defboard = []
 
+        # socket to server
+        self.sock = sock
+
         # hardcoded, males bikin class
         pygame.font.init()
         self.myboard_button_rect = pygame.Rect(650, 10, 240, 40)
@@ -242,6 +245,8 @@ class BattleScene:
                             tmp[0] = chr(ord(tmp[0])-1)
                             tmp[1] -= 1
                             tmp = self.ctl.getpixelcoordinate(self.board, tuple(tmp))
+                            print("i attacked", tmp)
+                            self.sock.send("ATT {} {}".format(*tmp).encode())
                             self.attackboard.append(tuple(tmp))
 
                 # case player in 'placing battleship' phase
@@ -265,5 +270,22 @@ class BattleScene:
                 pygame.display.update()
 
     def run(self):
-        ret = self.startbattle("tj", "receh")
+        p1 = ''
+        p2 = ''
+        bsid = ''
+        as_player = ''
+        msg = self.sock.recv(1024).decode().split()
+        if msg[0] == "BATL":
+            p1 = msg[1]
+            p2 = msg[2]
+            bsid = msg[3]
+            as_player = msg[4]
+
+
+        # register to session
+        self.sock.send("BTLS {}".format(bsid).encode())
+        if self.sock.recv(1024).decode() == "GOAWAY":
+            return 6
+
+        ret = self.startbattle(p1, p2)
         return ret

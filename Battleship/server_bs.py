@@ -6,14 +6,35 @@ import pickle
 import dbconn
 from player import Player
 
+class BattleSession(threading.Thread):
+    def __init__(self, session_id, player1, player2, player1_socket, player2_socket):
+        threading.Thread.__init__(self)
+        self.session_id = session_id
+        self.player1 = player1
+        self.player2 = player2
+        self.player1_socket = player1_socket
+        self.player2_socket = player2_socket
+
+        # ship placement
+        self.occupied = {}
+
+    def check_player(self, player_name):
+        if player_name == self.player1.name:
+            return "p1"
+        if player_name == self.player2.name:
+            return "p2"
+        return False
+
 class ClientThread(threading.Thread):
-    def __init__(self, sock: socket, address: tuple, player_list: dict, socket_list: dict):
+    def __init__(self, sock: socket, address: tuple, player_list: dict,
+                 socket_list: dict, battle_list: dict):
         threading.Thread.__init__(self)
         self.sock = sock
         self.address = address
         self.live = True
         self.player_list = player_list
         self.socket_list = socket_list
+        self.battle_list = battle_list
 
         # teje: butuh array buat simpan posisi kapal player
         # mockup: self.occupied, ClientThread.getPlayerShipPosition(), BattleshipServer.isLose()
@@ -52,6 +73,8 @@ class ClientThread(threading.Thread):
                 print(self.invite(argument))
             if command == "HSCO":
                 print(self.highscore())
+            if command == "BTLS":
+                print(self.battle(argument))
             if command == "QUIT":
                 name = self.player.name
                 print(name, self.address, "said goodbye :(")
@@ -154,6 +177,16 @@ class ClientThread(threading.Thread):
         self.socket_list[opponent]["challenge"].send(b"293 Battle Start")
         self.sock.send(b"293 Battle Start")
 
+        # create new battle session
+        bsid = str(len(self.battle_list)*17+1)
+        bs = BattleSession(bsid, self.player_list[opponent], self.player,
+                           self.socket_list[self.player.name], self.socket_list[opponent])
+        self.battle_list[bsid] = bs
+
+        msg = "BATL {} {} {}".format(opponent, self.player.name, bsid)
+        self.socket_list[opponent]["main"].send("{} {}".format(msg, "1").encode())
+        self.sock.send("{} {}".format(msg, "2").encode())
+
         # set status for both players
         self.player.goPlay()
         self.player_list[opponent].goPlay()
@@ -167,9 +200,43 @@ class ClientThread(threading.Thread):
         self.sock.send(score_pickled)
         return "295"
 
-    def getPlayerShipPosition(self):
-        # get player occupied tile. Get the data from scene_battle: BattleScene.occupied
-        return
+    def battle(self, bsid):
+        bs = ''
+        if bsid in self.battle_list:
+            bs = self.battle_list[bsid]
+
+        # check player
+        as_player = bs.check_player(self.player.name)
+        if as_player:
+            self.sock.send(b"OK")
+        else:
+            self.sock.send(b"GOAWAY")
+
+        # ship placing phase below
+        # pass
+
+        while True:
+            data = self.sock.recv(1024)
+            data_splitted = data.decode().split()
+            command, argument = data_splitted[0], " ".join(data_splitted[1:])
+            # print(data_splitted)
+            if command == "ATT":
+                print(self.player.name, "attacked", argument, self.convert_coordinate(argument))
+
+
+
+    # def getPlayerShipPosition(self):
+    #     # get player occupied tile. Get the data from scene_battle: BattleScene.occupied
+    #     return
+
+    # battle related method below
+
+    def convert_coordinate(self, coor):
+        alpha, number = coor.split()
+        number = (int(number)-40)//56 + 1
+        alpha = chr(65 + (int(alpha)-40)//56)
+        return (number, alpha)
+
 class BattleshipServer:
     def __init__(self, ip = "127.0.0.1", port = 9000):
 
@@ -187,6 +254,7 @@ class BattleshipServer:
 
         self.player_list = {}
         self.socket_list = {} # name -> {main_socket, challenge_socket}
+        self.battle_list = {}
         self.servwaiting = threading.Thread(target=self.waitForPlayer)
         self.csockwaiting = threading.Thread(target=self.pairChallengeSocket)
         self.servwaiting.start()
@@ -197,7 +265,7 @@ class BattleshipServer:
         while True:
             conn, addr = self.servsock.accept()
             print("New connection initiated", addr)
-            client = ClientThread(conn, addr, self.player_list, self.socket_list)
+            client = ClientThread(conn, addr, self.player_list, self.socket_list, self.battle_list)
             client.start()
 
     def pairChallengeSocket(self):
