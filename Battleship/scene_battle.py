@@ -188,7 +188,7 @@ class BattleScene:
         return 0
 
     def isplacementfinished(self, idxship):
-        if idxship == 6:
+        if idxship == 1:
             # debug: is_attackphase; Production: is_waitingopponent
             return None, self.ctl.IS_ATTACKPHASE
         if idxship == 0:
@@ -236,6 +236,7 @@ class BattleScene:
         running = self.initgame(p1name, p2name)
         waiting_turn = True
         opponent_is_ready = False
+        can_hit = False
         mousepos = None
         while running:
             self.screen.fill((0, 0, 0))
@@ -247,9 +248,11 @@ class BattleScene:
                     print(msg)
                     if msg[0] == "WAIT":
                         waiting_turn = True
+                        can_hit = False
                         print("I have to wait")
                     if msg[0] == "TURN":
                         waiting_turn = False
+                        can_hit = True
                         print("Its my turn")
                     if msg[0] == "ATTD":
                         attack_coor = (int(msg[1]), int(msg[2]))
@@ -266,6 +269,18 @@ class BattleScene:
                     if msg[0] == "ORDY":
                         opponent_is_ready = True
                         print("Opponent is now ready")
+                        # return 6
+                    if msg[0] == "WIN":
+                        print("You win!")
+                        self.clearboard()
+                        return 6
+                    if msg[0] == "LOSE":
+                        print("You lose!")
+                        self.clearboard()
+                        self.sock.send(b"ILOSE")
+                        return 6
+                    # if msg[0] == "END":
+                    #     return 6
                 if event.type == pygame.QUIT:
                     running = False
                     return 0
@@ -289,7 +304,9 @@ class BattleScene:
                             tmp[1] -= 1
                             tmp = self.ctl.getpixelcoordinate(self.board, tuple(tmp))
                             print("i attacked", tmp)
-                            self.sock.send("ATT {} {}".format(*tmp).encode())
+                            if can_hit:
+                                can_hit = False
+                                self.sock.send("ATT {} {}".format(*tmp).encode())
                             # self.attackboard.append(tuple(tmp)) # add cross to coordinate in attack board
                             # self.defboard.append(tuple(tmp)) # add cross to coordinate in my board
 
@@ -315,7 +332,17 @@ class BattleScene:
 
                 pygame.display.update()
 
+    def clearboard(self):
+        self.attackboard = []
+        self.attackboard_hit = []
+        self.defboard = []
+        self.defboard_hit = []
+        self.occupied = []
+        self.drawnbattleship = []
+
     def run(self):
+        self.ctl = control.Control()
+        self.board = board.Board(10)
         p1 = ''
         p2 = ''
         bsid = ''

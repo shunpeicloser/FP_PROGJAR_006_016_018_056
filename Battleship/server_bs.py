@@ -2,6 +2,8 @@ import socket
 import threading
 import sqlite3
 import pickle
+from math import ceil
+from time import sleep
 
 import dbconn
 from player import Player
@@ -68,6 +70,7 @@ class BattleSession(threading.Thread):
             self.player1_socket["challenge"].send(b"TURN")
             # send WAIT to p2
             self.player2_socket["challenge"].send(b"WAIT")
+        self.turn_count += 1
 
     def is_opponent_ready(self, player):
         if player == 1:
@@ -77,10 +80,40 @@ class BattleSession(threading.Thread):
 
     def is_hit(self, player, coor):
         if player == 1:
-            return coor in self.occupied[2]
+            if coor in self.occupied[2]:
+                self.occupied[2].remove(coor)
+                return True
+            return False
         if player == 2:
-            return coor in self.occupied[1]
+            if coor in self.occupied[1]:
+                self.occupied[1].remove(coor)
+                return True
+            return False
 
+    def check_winning(self):
+        if not self.occupied[1] or not self.occupied[2]:
+            # reset player status
+            self.player1.ingame = False
+            self.player2.ingame = False
+            # player 2 wins
+            if not self.occupied[1]:
+                # send LOSE to p1
+                self.player1_socket["challenge"].send(b"LOSE")
+                # send WIN to p2
+                self.player2_socket["challenge"].send(b"WIN")
+                return True
+            # player 1 wins
+            if not self.occupied[2]:
+                # send WIN to p1
+                self.player1_socket["challenge"].send(b"WIN")
+                # send LOSE to p2
+                self.player2_socket["challenge"].send(b"LOSE")
+                return True
+
+        return False
+
+    def get_turn(self):
+        return ceil(self.turn_count/2)
 
 class ClientThread(threading.Thread):
     def __init__(self, sock: socket, address: tuple, player_list: dict,
@@ -139,6 +172,7 @@ class ClientThread(threading.Thread):
                 self.sock.send(b"BYE")
                 self.sock.close()
                 self.live = False
+                self.player.loggedin = False
 
                 # if already logged in, delete from session
                 if self.player.name:
@@ -297,6 +331,7 @@ class ClientThread(threading.Thread):
             bs.startbattle()
         while True:
             # check if current turn
+            print(self.player.name, "is waiting")
             while not bs.is_turn(as_player):
                 pass # do nothing
             print("its", self.player.name, "turn")
@@ -312,11 +347,22 @@ class ClientThread(threading.Thread):
                 else:
                     csock.send("MISS {}".format(argument).encode())
                 o_csock.send("ATTD {}".format(argument).encode())
+            if command == "ILOSE":
+                print(self.player.name, "is losing. Exiting")
+                return
+
 
             print("my turn is done", self.player.name)
-            # switch turn
-            bs.switch_turn()
+            # check winner
 
+            # switch turn
+            if bs.is_turn(as_player):
+                bs.switch_turn()
+                sleep(1)
+                if bs.check_winning():
+                    print("Finished in", bs.get_turn(), "turn(s)")
+                    # break
+                    return True
 
 
 
