@@ -233,6 +233,7 @@ class BattleScene:
         # ncarrier, nbattleship, ncruiser, nsubmarine, ndestroyer = 1, 2, 1, 2, 4
         idxship = 0
         self.ctl.selectedbattleship = battleship.Battleship.SHIP_TYPE[0]
+        self.ctl.mousestatus = self.ctl.IS_PLACINGSHIP
         running = self.initgame(p1name, p2name)
         waiting_turn = True
         opponent_is_ready = False
