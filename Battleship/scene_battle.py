@@ -340,6 +340,7 @@ class BattleScene:
         self.defboard_hit = []
         self.occupied = []
         self.drawnbattleship = []
+        self.is_attackboard = False
 
     def run(self):
         self.ctl = control.Control()

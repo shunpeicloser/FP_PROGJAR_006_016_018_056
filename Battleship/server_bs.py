@@ -17,6 +17,9 @@ class BattleSession(threading.Thread):
         self.player1_socket = player1_socket
         self.player2_socket = player2_socket
 
+        # db conn
+        # self.conn = sqlite3.connect("battleship.db")
+
         self.started = False
 
         # ship placement
@@ -91,24 +94,35 @@ class BattleSession(threading.Thread):
             return False
 
     def check_winning(self):
+        if not self.started:
+            return False
         if not self.occupied[1] or not self.occupied[2]:
             # reset player status
             self.player1.ingame = False
             self.player2.ingame = False
+            self.started = False
+
+            # db conn
+            conn = sqlite3.connect("battleship.db")
+
             # player 2 wins
             if not self.occupied[1]:
                 # send LOSE to p1
                 self.player1_socket["challenge"].send(b"LOSE")
                 # send WIN to p2
                 self.player2_socket["challenge"].send(b"WIN")
+                dbconn.newscore(conn, self.player2.name, self.get_turn())
                 return True
             # player 1 wins
             if not self.occupied[2]:
                 # send WIN to p1
                 self.player1_socket["challenge"].send(b"WIN")
+                dbconn.newscore(conn, self.player1.name, self.get_turn())
                 # send LOSE to p2
                 self.player2_socket["challenge"].send(b"LOSE")
                 return True
+
+            conn.close()
 
         return False
 
