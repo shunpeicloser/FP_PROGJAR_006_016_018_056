@@ -256,6 +256,7 @@ class BattleScene:
                         can_hit = True
                         print("Its my turn")
                     if msg[0] == "ATTD":
+                        self.is_attackboard = False
                         attack_coor = (int(msg[1]), int(msg[2]))
                         print("i am attacked", attack_coor)
                         self.defboard.append(attack_coor)
