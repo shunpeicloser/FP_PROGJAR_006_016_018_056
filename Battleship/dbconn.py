@@ -4,7 +4,7 @@ def get_user(conn, user: str) -> tuple:
 
 def get_highscore(conn) -> list:
     hi = []
-    for skor in conn.cursor().execute("SELECT * FROM score ORDER BY score ASC LIMIT 10").fetchall():
+    for skor in conn.cursor().execute("SELECT * FROM score ORDER BY score DESC LIMIT 10").fetchall():
         hi += [skor]
     return hi
 
@@ -22,7 +22,7 @@ def register(conn, user: str, passowrd: str) -> bool:
 
 def newscore(conn, user: str, score: int) -> bool:
     cur = conn.cursor()
-    cur.execute("INSERT INTO score VALUES(?, ?)", (user, score))
+    cur.execute("INSERT INTO score VALUES(?, ?)", (user, 100-score))
     conn.commit()
 
     return True
