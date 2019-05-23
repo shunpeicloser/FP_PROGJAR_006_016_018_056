@@ -120,7 +120,7 @@ class BattleScene:
             return False
         print("boardcoor is", boardcoor)
         alpha = int(40 + 56*(ord(boardcoor[0])-65))
-        number = int(40 + 56*(1-boardcoor[1]))
+        number = int(40 + 56*(boardcoor[1]-1))
         hit_coor = (alpha, number)
         print("hit_coor is", hit_coor)
         if hit_coor in self.attackboard or hit_coor in self.attackboard_hit:
