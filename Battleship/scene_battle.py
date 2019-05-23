@@ -25,7 +25,7 @@ class BattleScene:
         self.attackboard_hit = []
         self.defboard = []
         self.defboard_hit = []
-
+        self.waiting = 0
 
         # socket to server
         self.sock = sock
@@ -165,6 +165,12 @@ class BattleScene:
         self.screen.blit(self.myboard_button_surface, (self.myboard_button_rect.x + 8, self.myboard_button_rect.y + 8))
         self.screen.blit(self.enemyboard_button_surface, (self.enemyboard_button_rect.x + 8, self.enemyboard_button_rect.y + 8))
 
+        if self.waiting == 1:
+            hs_text = pygame.font.Font(None, 64).render('Waiting...', True, pygame.Color('black'))
+            self.screen.blit(hs_text, (658,220))
+        elif self.waiting == 2:
+            hs_text = pygame.font.Font(None, 64).render('My Turn!', True, pygame.Color('black'))
+            self.screen.blit(hs_text, (658,220))
         if not self.is_attackboard:
             for battleship_img, pos in self.drawnbattleship:
                 self.screen.blit(battleship_img, pos)
@@ -257,10 +263,12 @@ class BattleScene:
                     if msg[0] == "WAIT":
                         waiting_turn = True
                         can_hit = False
+                        self.waiting = 1
                         print("I have to wait")
                     if msg[0] == "TURN":
                         waiting_turn = False
                         can_hit = True
+                        self.waiting = 2
                         print("Its my turn")
                     if msg[0] == "ATTD":
                         self.is_attackboard = False

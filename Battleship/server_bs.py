@@ -393,7 +393,7 @@ class ClientThread(threading.Thread):
         return alpha+number
 
 class BattleshipServer:
-    def __init__(self, ip = "127.0.0.1", port = 9000):
+    def __init__(self, ip = "0.0.0.0", port = 9000):
 
         # prepping up socket
         self.servsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
